@@ -17,8 +17,8 @@ module "network" {
   network = local.network
 }
 
-# module "ec2" {
-#   source = "../../modules/ec2"
-#   common = local.common
-#   network = module.network
-# }
+module "ec2" {
+  source = "../../modules/ec2"
+  common = local.common
+  network = module.network
+}
