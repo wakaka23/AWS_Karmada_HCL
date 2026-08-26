@@ -41,24 +41,24 @@ resource "aws_instance" "control_plane" {
 }
 
 # Define EC2 instance for WorkerNode
-# resource "aws_instance" "worker_node" {
-#   ami                    = data.aws_ami.ubuntu.id
-#   instance_type          = "t3.large"
-#   vpc_security_group_ids = [var.network.security_group_for_worker_node_id]
-#   subnet_id              = var.network.private_subnet_for_worker_node_id
-#   root_block_device {
-#     volume_type = "gp3"
-#     volume_size = "30"
-#     encrypted   = true
-#     tags = {
-#       Name = "${var.common.env}-ebs-worker-node"
-#     }
-#   }
-#   iam_instance_profile = aws_iam_instance_profile.main.name
-#   tags = {
-#     Name = "${var.common.env}-ec2-worker-node"
-#   }
-# }
+resource "aws_instance" "worker_node" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.large"
+  vpc_security_group_ids = [var.network.security_group_for_worker_node_id]
+  subnet_id              = var.network.private_subnet_for_worker_node_id
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = "30"
+    encrypted   = true
+    tags = {
+      Name = "${var.common.env}-ebs-worker-node"
+    }
+  }
+  iam_instance_profile = aws_iam_instance_profile.main.name
+  tags = {
+    Name = "${var.common.env}-ec2-worker-node"
+  }
+}
 
 # Define IAM instance profile for EC2
 resource "aws_iam_instance_profile" "main" {
