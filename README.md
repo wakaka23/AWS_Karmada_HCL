@@ -1,2 +1,6 @@
 # AWS_Karmada_HCL
-first, second
+
+Profile: first, second
+Terrafom init: terraform init -backend-config=dev.tfbackend
+
+### Kubernetes Install
