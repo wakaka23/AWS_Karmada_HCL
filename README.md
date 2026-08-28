@@ -1,4 +1,5 @@
 # AWS_Karmada_HCL
+https://qiita.com/showchan33/items/02e4a5f02b08c08d7813
 
 ## Common Setup
 

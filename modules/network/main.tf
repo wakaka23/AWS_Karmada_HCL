@@ -165,14 +165,6 @@ resource "aws_vpc_security_group_ingress_rule" "control_plane_scheduler" {
   referenced_security_group_id = aws_security_group.worker_node.id
 }
 
-resource "aws_vpc_security_group_ingress_rule" "control_plane_calico_bgp" {
-  security_group_id            = aws_security_group.control_plane.id
-  ip_protocol                  = "tcp"
-  from_port                    = 179
-  to_port                      = 179
-  referenced_security_group_id = aws_security_group.worker_node.id
-}
-
 resource "aws_vpc_security_group_ingress_rule" "control_plane_calico_vxlan" {
   security_group_id            = aws_security_group.control_plane.id
   ip_protocol                  = "udp"
@@ -210,22 +202,6 @@ resource "aws_vpc_security_group_ingress_rule" "worker_node_nodeport" {
   from_port                    = 30000
   to_port                      = 32767
   referenced_security_group_id = aws_security_group.control_plane.id
-}
-
-resource "aws_vpc_security_group_ingress_rule" "worker_node_calico_bgp_from_control_plane" {
-  security_group_id            = aws_security_group.worker_node.id
-  ip_protocol                  = "tcp"
-  from_port                    = 179
-  to_port                      = 179
-  referenced_security_group_id = aws_security_group.control_plane.id
-}
-
-resource "aws_vpc_security_group_ingress_rule" "worker_node_calico_bgp_from_worker_node" {
-  security_group_id            = aws_security_group.worker_node.id
-  ip_protocol                  = "tcp"
-  from_port                    = 179
-  to_port                      = 179
-  referenced_security_group_id = aws_security_group.worker_node.id
 }
 
 resource "aws_vpc_security_group_ingress_rule" "worker_node_calico_vxlan_from_control_plane" {
