@@ -21,7 +21,7 @@ sudo apt-get install -y containerd
 sudo systemctl status containerd
 sudo mkdir -p /etc/containerd
 sudo sh -c 'containerd config default > /etc/containerd/config.toml'
-sudo cat /etc/containerd/config.tom| grep disabled_plugins
+sudo cat /etc/containerd/config.toml | grep disabled_plugins
 ```
 
 --- Enable SystemdCgroup for Cgroup Driver---  
@@ -105,7 +105,10 @@ sudo chown $(id -u):$(id -g) ~/.kube/config
 ```
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/v1_crd_projectcalico_org.yaml
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/tigera-operator.yaml
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/custom-resources.yaml
+
+wget https://raw.githubusercontent.com/projectcalico/calico/v3.32.1/manifests/custom-resources.yaml
+vi custom-resources.yaml
+kubectl apply -f custom-resources.yaml
 ```
 
 ### Prepare Join Command

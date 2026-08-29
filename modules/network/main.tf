@@ -173,6 +173,14 @@ resource "aws_vpc_security_group_ingress_rule" "control_plane_calico_vxlan" {
   referenced_security_group_id = aws_security_group.worker_node.id
 }
 
+resource "aws_vpc_security_group_ingress_rule" "control_plane_calico_typha" {
+  security_group_id            = aws_security_group.control_plane.id
+  ip_protocol                  = "tcp"
+  from_port                    = 5473
+  to_port                      = 5473
+  referenced_security_group_id = aws_security_group.worker_node.id
+}
+
 resource "aws_vpc_security_group_egress_rule" "control_plane" {
   security_group_id = aws_security_group.control_plane.id
   ip_protocol       = "-1"
@@ -217,6 +225,22 @@ resource "aws_vpc_security_group_ingress_rule" "worker_node_calico_vxlan_from_wo
   ip_protocol                  = "udp"
   from_port                    = 4789
   to_port                      = 4789
+  referenced_security_group_id = aws_security_group.worker_node.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "worker_node_calico_typha_from_control_plane" {
+  security_group_id            = aws_security_group.worker_node.id
+  ip_protocol                  = "tcp"
+  from_port                    = 5473
+  to_port                      = 5473
+  referenced_security_group_id = aws_security_group.control_plane.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "worker_node_calico_typha_from_worker_node" {
+  security_group_id            = aws_security_group.worker_node.id
+  ip_protocol                  = "tcp"
+  from_port                    = 5473
+  to_port                      = 5473
   referenced_security_group_id = aws_security_group.worker_node.id
 }
 
