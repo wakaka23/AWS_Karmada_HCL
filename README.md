@@ -4,6 +4,20 @@ https://qiita.com/showchan33/items/02e4a5f02b08c08d7813
 ## Common Setup
 
 ### Preparation
+--- Change hostname ---  
+・https://dev.classmethod.jp/articles/ec2-al2023-set-static-hostname/
+``` 
+sudo hostnamectl set-hostname controlplane/node01
+sudo vi /etc/cloud/cloud.cfg
+-------------------------------
+# 変更前
+preserve_hostname: false
+
+# 変更後
+preserve_hostname: true
+-------------------------------
+```
+
 
 --- Update apt packages ---
 ``` 
