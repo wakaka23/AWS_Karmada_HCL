@@ -140,3 +140,5 @@ kubeadm token create --print-join-command
 sudo kubeadm join <ControlPlane IP>:6443 --token <Token> --discovery-token-ca-cert-hash sha256:<Hash>
 systemctl status kubelet
 ```
+
+## Karmada setup

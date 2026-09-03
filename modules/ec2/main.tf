@@ -31,12 +31,12 @@ resource "aws_instance" "control_plane" {
     volume_size = "30"
     encrypted   = true
     tags = {
-      Name = "${var.common.env}-ebs-control-plane"
+      Name = "${var.common.env}-ebs-control-plane${var.name_suffix}"
     }
   }
   iam_instance_profile = aws_iam_instance_profile.main.name
   tags = {
-    Name = "${var.common.env}-ec2-control-plane"
+    Name = "${var.common.env}-ec2-control-plane${var.name_suffix}"
   }
 }
 
@@ -51,23 +51,23 @@ resource "aws_instance" "worker_node" {
     volume_size = "30"
     encrypted   = true
     tags = {
-      Name = "${var.common.env}-ebs-worker-node"
+      Name = "${var.common.env}-ebs-worker-node${var.name_suffix}"
     }
   }
   iam_instance_profile = aws_iam_instance_profile.main.name
   tags = {
-    Name = "${var.common.env}-ec2-worker-node"
+    Name = "${var.common.env}-ec2-worker-node${var.name_suffix}"
   }
 }
 
 # Define IAM instance profile for EC2
 resource "aws_iam_instance_profile" "main" {
-  name = "${var.common.env}-instance-profile"
+  name = "${var.common.env}-instance-profile${var.name_suffix}"
   role = aws_iam_role.main.name
 }
 
 resource "aws_iam_role" "main" {
-  name               = "${var.common.env}-role-for-ec2"
+  name               = "${var.common.env}-role-for-ec2${var.name_suffix}"
   assume_role_policy = data.aws_iam_policy_document.main.json
 }
 
@@ -86,6 +86,6 @@ resource "aws_iam_role_policy_attachment" "main" {
   for_each = {
     ssm = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
-  role = aws_iam_role.main.name
+  role       = aws_iam_role.main.name
   policy_arn = each.value
 }

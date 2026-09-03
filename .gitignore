@@ -42,5 +42,9 @@ terraform.rc
 # Ignore .tfbackend files
 *.tfbackend
 
+# Ignore backend config files (contain environment-specific state bucket info)
+backend.hcl
+*.backend.hcl
+
 # Ignore .lock.hcl files
 *.lock.hcl

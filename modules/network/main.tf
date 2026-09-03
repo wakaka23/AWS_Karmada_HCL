@@ -55,7 +55,7 @@ resource "aws_nat_gateway" "main" {
   for_each      = aws_subnet.public
   subnet_id     = each.value.id
   allocation_id = aws_eip.main[each.key].id
-  depends_on = [aws_internet_gateway.main]
+  depends_on    = [aws_internet_gateway.main]
   tags = {
     Name = "${var.common.env}-nat-${each.key}"
   }
@@ -81,7 +81,7 @@ resource "aws_route_table" "public" {
 resource "aws_route" "public" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id              = aws_internet_gateway.main.id
+  gateway_id             = aws_internet_gateway.main.id
 }
 
 resource "aws_route_table_association" "public" {
@@ -126,12 +126,12 @@ resource "aws_security_group" "control_plane" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "control_plane_apiserver" {
-  security_group_id = aws_security_group.control_plane.id
-  ip_protocol = "tcp"
-  from_port = 6443
-  to_port = 6443
+  security_group_id            = aws_security_group.control_plane.id
+  ip_protocol                  = "tcp"
+  from_port                    = 6443
+  to_port                      = 6443
   referenced_security_group_id = aws_security_group.worker_node.id
-} 
+}
 
 resource "aws_vpc_security_group_ingress_rule" "control_plane_etcd" {
   security_group_id            = aws_security_group.control_plane.id
@@ -179,6 +179,16 @@ resource "aws_vpc_security_group_ingress_rule" "control_plane_calico_typha" {
   from_port                    = 5473
   to_port                      = 5473
   referenced_security_group_id = aws_security_group.worker_node.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "control_plane_from_peer" {
+  for_each          = toset(var.peer_cidrs)
+  security_group_id = aws_security_group.control_plane.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = each.value
+  tags = {
+    Name = "${var.common.env}-sg-control-plane-from-peer"
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "control_plane" {
@@ -248,4 +258,14 @@ resource "aws_vpc_security_group_egress_rule" "worker_node" {
   security_group_id = aws_security_group.worker_node.id
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "worker_node_from_peer" {
+  for_each          = toset(var.peer_cidrs)
+  security_group_id = aws_security_group.worker_node.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = each.value
+  tags = {
+    Name = "${var.common.env}-sg-worker-node-from-peer"
+  }
 }

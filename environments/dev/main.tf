@@ -11,14 +11,64 @@ terraform {
   }
 }
 
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
+provider "aws" {
+  alias  = "osaka"
+  region = "ap-northeast-3"
+}
+
 module "network" {
+  source     = "../../modules/network"
+  common     = local.common
+  network    = local.network
+  peer_cidrs = [local.network_osaka.cidr]
+}
+
+module "network_osaka" {
   source = "../../modules/network"
-  common = local.common
-  network = local.network
+  providers = {
+    aws = aws.osaka
+  }
+  common     = local.common_osaka
+  network    = local.network_osaka
+  peer_cidrs = [local.network.cidr]
 }
 
 module "ec2" {
-  source = "../../modules/ec2"
-  common = local.common
+  source  = "../../modules/ec2"
+  common  = local.common
   network = module.network
+}
+
+module "ec2_osaka" {
+  source = "../../modules/ec2"
+  providers = {
+    aws = aws.osaka
+  }
+  common      = local.common_osaka
+  network     = module.network_osaka
+  name_suffix = "-osaka"
+}
+
+module "peering" {
+  source = "../../modules/peering"
+  providers = {
+    aws      = aws
+    aws.peer = aws.osaka
+  }
+  common = local.common
+  requester = {
+    vpc_id          = module.network.vpc_id
+    vpc_cidr        = module.network.vpc_cidr
+    route_table_ids = module.network.route_table_ids
+  }
+  accepter = {
+    vpc_id          = module.network_osaka.vpc_id
+    vpc_cidr        = module.network_osaka.vpc_cidr
+    route_table_ids = module.network_osaka.route_table_ids
+    region          = "ap-northeast-3"
+  }
 }
