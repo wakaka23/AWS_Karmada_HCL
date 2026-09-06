@@ -1,6 +1,8 @@
 # AWS_Karmada_HCL
 https://qiita.com/showchan33/items/02e4a5f02b08c08d7813
+サーバは192.168、Podは10.0、Serviceが172.16が一番綺麗
 
+# 1. Cluster Setup
 ## Common Setup
 
 ### Preparation
@@ -99,7 +101,7 @@ sudo systemctl enable --now kubelet.service
 ・kubeadm initによるクラスタ初期構築  
 ・CNIとしてCalicoを使用する場合、PodCidrはkubeadm init時 or Calico Installation CRで明示的に指定する必要がある  
 ・ServiceCidrはデフォルトでは10.96.0.0/12が使用されるが、重複を防ぐためにRFC1918単位で分割する  
-・EC2用：10.0.0.0/18, Service CIDR用: 172.16.0.0/12, Pod Network CIDR用: 192.168.0.0/16  
+・EC2用：10.0.0.0/18, Service CIDR用: 172.16.0.0/16, Pod Network CIDR用: 192.168.0.0/16  
 ・https://kubernetes.io/ja/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
 
 ```
@@ -141,4 +143,37 @@ sudo kubeadm join <ControlPlane IP>:6443 --token <Token> --discovery-token-ca-ce
 systemctl status kubelet
 ```
 
-## Karmada setup
+
+
+# 2. Karmada setup
+・現状クラスタ間通信は不可だが、一旦は保留する。先にCalicoを整理する。
+・submarinerというOSSを用いてクラスタ間通信はおこなうことを推奨している（いちいち名前カッコいいな...）
+・https://karmada.io/docs/installation/
+・https://zenn.dev/zenogawa/articles/k8s_multi_cluster_karmada
+・https://karmada.io/docs/userguide/network/working-with-submariner
+
+# 3. Additional Setup for GPU Cluster
+### Install Helm
+・https://helm.sh/ja/docs/intro/install/
+```
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
+chmod 700 get_helm.sh
+./get_helm.sh
+```
+
+### Install NVIDIA GPU Operator
+・AMIとして通常のUbuntu 24.04 LTSを使用するため、Driver及びToolkitもOperatorで導入する。  
+・よって、以下記事に記載のようなValuesを別途指定する必要はない。  
+・https://dev.classmethod.jp/articles/nvidia-gpu-operator/  
+・https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html
+
+--- Add Repository for NVIDIA GPU Operator ---  
+```
+sudo helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+sudo helm repo update
+```
+
+--- Install NVIDIA GPU Operator ---  
+```
+helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator
+```
