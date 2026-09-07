@@ -43,7 +43,7 @@ resource "aws_instance" "control_plane" {
 # Define EC2 instance for WorkerNode
 resource "aws_instance" "worker_node" {
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.large"
+  instance_type          = var.worker_instance_type
   vpc_security_group_ids = [var.network.security_group_for_worker_node_id]
   subnet_id              = var.network.private_subnet_for_worker_node_id
   root_block_device {

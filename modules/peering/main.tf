@@ -17,7 +17,7 @@ resource "aws_vpc_peering_connection" "main" {
   peer_vpc_id = var.accepter.vpc_id
   peer_region = var.accepter.region
   tags = {
-    Name = "${var.common.env}-pcx"
+    Name = "${var.common.env}-pcx${var.name_suffix}"
   }
 }
 
@@ -28,7 +28,7 @@ resource "aws_vpc_peering_connection_accepter" "main" {
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   auto_accept               = true
   tags = {
-    Name = "${var.common.env}-pcx-accepter"
+    Name = "${var.common.env}-pcx-accepter${var.name_suffix}"
   }
 }
 

@@ -8,7 +8,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
   enable_dns_support   = true
   tags = {
-    Name = "${var.common.env}-vpc"
+    Name = "${var.common.env}-vpc${var.name_suffix}"
   }
 }
 
@@ -23,7 +23,7 @@ resource "aws_subnet" "public" {
   availability_zone = "${var.common.region}${each.value.az}"
   cidr_block        = each.value.cidr
   tags = {
-    Name = "${var.common.env}-subnet-public-${each.value.az}"
+    Name = "${var.common.env}-subnet-public-${each.value.az}${var.name_suffix}"
   }
 }
 
@@ -34,7 +34,7 @@ resource "aws_subnet" "private" {
   availability_zone = "${var.common.region}${each.value.az}"
   cidr_block        = each.value.cidr
   tags = {
-    Name = "${var.common.env}-subnet-private-${each.value.az}"
+    Name = "${var.common.env}-subnet-private-${each.value.az}${var.name_suffix}"
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "private" {
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name = "${var.common.env}-igw"
+    Name = "${var.common.env}-igw${var.name_suffix}"
   }
 }
 
@@ -57,7 +57,7 @@ resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.main[each.key].id
   depends_on    = [aws_internet_gateway.main]
   tags = {
-    Name = "${var.common.env}-nat-${each.key}"
+    Name = "${var.common.env}-nat-${each.key}${var.name_suffix}"
   }
 }
 
@@ -74,7 +74,7 @@ resource "aws_eip" "main" {
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name = "${var.common.env}-rtb-public"
+    Name = "${var.common.env}-rtb-public${var.name_suffix}"
   }
 }
 
@@ -95,7 +95,7 @@ resource "aws_route_table" "private" {
   for_each = aws_subnet.private
   vpc_id   = aws_vpc.main.id
   tags = {
-    Name = "${var.common.env}-rtb-private-${each.key}"
+    Name = "${var.common.env}-rtb-private-${each.key}${var.name_suffix}"
   }
 }
 
@@ -118,10 +118,10 @@ resource "aws_route_table_association" "private" {
 
 # Define security group for ControlPlane
 resource "aws_security_group" "control_plane" {
-  name   = "${var.common.env}-sg-control-plane"
+  name   = "${var.common.env}-sg-control-plane${var.name_suffix}"
   vpc_id = aws_vpc.main.id
   tags = {
-    Name = "${var.common.env}-sg-control-plane"
+    Name = "${var.common.env}-sg-control-plane${var.name_suffix}"
   }
 }
 
@@ -187,7 +187,7 @@ resource "aws_vpc_security_group_ingress_rule" "control_plane_from_peer" {
   ip_protocol       = "-1"
   cidr_ipv4         = each.value
   tags = {
-    Name = "${var.common.env}-sg-control-plane-from-peer"
+    Name = "${var.common.env}-sg-control-plane-from-peer${var.name_suffix}"
   }
 }
 
@@ -199,10 +199,10 @@ resource "aws_vpc_security_group_egress_rule" "control_plane" {
 
 # Define security group for worker node
 resource "aws_security_group" "worker_node" {
-  name   = "${var.common.env}-sg-worker-node"
+  name   = "${var.common.env}-sg-worker-node${var.name_suffix}"
   vpc_id = aws_vpc.main.id
   tags = {
-    Name = "${var.common.env}-sg-worker-node"
+    Name = "${var.common.env}-sg-worker-node${var.name_suffix}"
   }
 }
 
@@ -266,6 +266,6 @@ resource "aws_vpc_security_group_ingress_rule" "worker_node_from_peer" {
   ip_protocol       = "-1"
   cidr_ipv4         = each.value
   tags = {
-    Name = "${var.common.env}-sg-worker-node-from-peer"
+    Name = "${var.common.env}-sg-worker-node-from-peer${var.name_suffix}"
   }
 }

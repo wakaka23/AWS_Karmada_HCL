@@ -10,6 +10,11 @@ variable "peer_cidrs" {
   default = []
 }
 
+variable "name_suffix" {
+  type    = string
+  default = ""
+}
+
 variable "network" {
   type = object({
     cidr = string

@@ -9,6 +9,11 @@ variable "name_suffix" {
   default = ""
 }
 
+variable "worker_instance_type" {
+  type    = string
+  default = "t3.large"
+}
+
 variable "network" {
   type = object({
     vpc_id                              = string

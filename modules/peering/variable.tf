@@ -4,6 +4,11 @@ variable "common" {
   })
 }
 
+variable "name_suffix" {
+  type    = string
+  default = ""
+}
+
 # Requester side VPC (associated with the default `aws` provider)
 variable "requester" {
   type = object({

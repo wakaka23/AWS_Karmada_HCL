@@ -64,4 +64,28 @@ locals {
       }
     ]
   }
+
+  network_osaka2 = {
+    cidr = "10.2.0.0/16"
+    public_subnets = [
+      {
+        az   = "a"
+        cidr = "10.2.0.0/24"
+      },
+      {
+        az   = "c"
+        cidr = "10.2.1.0/24"
+      }
+    ]
+    private_subnets = [
+      {
+        az   = "a"
+        cidr = "10.2.10.0/24"
+      },
+      {
+        az   = "c"
+        cidr = "10.2.11.0/24"
+      }
+    ]
+  }
 }
