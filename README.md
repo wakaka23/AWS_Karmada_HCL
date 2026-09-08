@@ -152,6 +152,20 @@ systemctl status kubelet
 ・https://zenn.dev/zenogawa/articles/k8s_multi_cluster_karmada
 ・https://karmada.io/docs/userguide/network/working-with-submariner
 
+### kubeconfig setting for Karmada Control Plane
+・kubeconfigは別々に管理しており、環境変数に複数を定義すること対応する。
+・~/.kube/config（東京側クラスタ）
+・~/.kube/karmada.config（Karmadaクラスタ）
+・~/.kube/member-a.config（大阪側クラスタ）
+
+--- Set Kubeconfig for Karmada ---
+```
+export KUBECONFIG=＄HOME/.kube/config:$HOME/.kube/karmada.config
+kubectl config get-contexts
+kubectl config use-context {Context名}
+```
+
+
 # 3. Additional Setup for GPU Cluster
 ### Install Helm
 ・https://helm.sh/ja/docs/intro/install/
@@ -169,11 +183,53 @@ chmod 700 get_helm.sh
 
 --- Add Repository for NVIDIA GPU Operator ---  
 ```
-sudo helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-sudo helm repo update
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
 ```
 
 --- Install NVIDIA GPU Operator ---  
 ```
-helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator
+helm install gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator
+```
+
+### Download Weighted Parameters
+・対象モデルの学習済み重み付きパラメータをダウンロード
+・HuggingFace CLIのインストールが必要
+・https://note.com/zephel01/n/n1c1c8c4f7dde
+
+--- Create Python Virtual Environment ---
+```
+sudo apt update
+sudo apt install -y python3-venv
+python3 -m venv ~/venv
+source ~/venv/bin/activate
+```
+
+--- Install Hugging Gace CLI ---
+```
+pip install -U huggingface_hub
+```
+
+--- Download Weighted Parameters ---
+```
+hf download openai/gpt-oss-20b --local-dir /data/models/gpt-oss-20b
+hf download Qwen/Qwen2.5-7B-Instruct --local-dir /data/models/Qwen2.5-7B-Instruct
+hf download Qwen/Qwen2.5-3B-Instruct --local-dir /data/models/Qwen2.5-3B-Instruct
+```
+
+### (If necessary) Pre-Install Image
+
+--- Install Crictl ---
+・https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md
+
+```
+VERSION="v1.37.0"
+wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+rm -f crictl-$VERSION-linux-amd64.tar.gz
+```
+
+--- Pull Image ---
+```
+sudo crictl pull docker.io/vllm/vllm-openai:v0.10.1
 ```
