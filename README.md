@@ -143,8 +143,6 @@ sudo kubeadm join <ControlPlane IP>:6443 --token <Token> --discovery-token-ca-ce
 systemctl status kubelet
 ```
 
-
-
 # 2. Karmada setup
 ・現状クラスタ間通信は不可だが、一旦は保留する。先にCalicoを整理する。
 ・submarinerというOSSを用いてクラスタ間通信はおこなうことを推奨している（いちいち名前カッコいいな...）
@@ -160,14 +158,16 @@ systemctl status kubelet
 
 --- Set Kubeconfig for Karmada ---
 ```
-export KUBECONFIG=＄HOME/.kube/config:$HOME/.kube/karmada.config
+echo 'export KUBECONFIG=$HOME/.kube/config:$HOME/.kube/karmada.config' >> ~/.bashrc
+source ~/.bashrc
+
 kubectl config get-contexts
 kubectl config use-context {Context名}
 ```
 
 
 # 3. Additional Setup for GPU Cluster
-### Install Helm
+### Install Helm（Control Plane）
 ・https://helm.sh/ja/docs/intro/install/
 ```
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
@@ -175,7 +175,7 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-### Install NVIDIA GPU Operator
+### Install NVIDIA GPU Operator（Control Plane）
 ・AMIとして通常のUbuntu 24.04 LTSを使用するため、Driver及びToolkitもOperatorで導入する。  
 ・よって、以下記事に記載のようなValuesを別途指定する必要はない。  
 ・https://dev.classmethod.jp/articles/nvidia-gpu-operator/  
@@ -192,7 +192,7 @@ helm repo update
 helm install gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator
 ```
 
-### Download Weighted Parameters
+### Download Weighted Parameters(GPU Node)
 ・対象モデルの学習済み重み付きパラメータをダウンロード
 ・HuggingFace CLIのインストールが必要
 ・https://note.com/zephel01/n/n1c1c8c4f7dde
@@ -205,13 +205,17 @@ python3 -m venv ~/venv
 source ~/venv/bin/activate
 ```
 
---- Install Hugging Gace CLI ---
+--- Install Hugging Face CLI ---
 ```
 pip install -U huggingface_hub
 ```
 
 --- Download Weighted Parameters ---
+・学習済み重み付きパラメータを/data/modelsに配備する
 ```
+sudo mkdir -p /data/models
+sudo chown -R ssm-user:ssm-user /data
+
 hf download openai/gpt-oss-20b --local-dir /data/models/gpt-oss-20b
 hf download Qwen/Qwen2.5-7B-Instruct --local-dir /data/models/Qwen2.5-7B-Instruct
 hf download Qwen/Qwen2.5-3B-Instruct --local-dir /data/models/Qwen2.5-3B-Instruct
